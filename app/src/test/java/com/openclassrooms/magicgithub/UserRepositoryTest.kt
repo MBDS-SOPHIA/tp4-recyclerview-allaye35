@@ -12,6 +12,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.Assert.*
+import com.openclassrooms.magicgithub.api.FakeApiService
+import com.openclassrooms.magicgithub.api.FakeApiServiceGenerator
+
 
 /**
  * Unit test, which will execute on a JVM.
@@ -21,18 +25,23 @@ import org.junit.runners.JUnit4
 class UserRepositoryTest {
     private lateinit var userRepository: UserRepository
 
+    // Liste mutable pour stocker les utilisateurs
+    private val users = FakeApiServiceGenerator.FAKE_USERS.toMutableList()
+
     @Before
     fun setup() {
-        userRepository = Injection.getRepository()
+        val apiService = FakeApiService()
+        userRepository = UserRepository(apiService)
     }
 
     @Test
     fun getUsersWithSuccess() {
         val usersActual = userRepository.getUsers()
-        val usersExpected: List<User> = FAKE_USERS
+        val usersExpected = FakeApiServiceGenerator.FAKE_USERS
         assertEquals(
-            usersActual,
-            usersExpected
+            "Les utilisateurs attendus et réels ne correspondent pas.",
+            usersExpected,
+            usersActual
         )
     }
 
@@ -40,19 +49,49 @@ class UserRepositoryTest {
     fun generateRandomUserWithSuccess() {
         val initialSize = userRepository.getUsers().size
         userRepository.addRandomUser()
-        val user = userRepository.getUsers().last()
-        assertEquals(userRepository.getUsers().size, initialSize + 1)
+        val newSize = userRepository.getUsers().size
+        assertEquals(
+            "La taille de la liste après l’ajout ne correspond pas.",
+            initialSize + 1,
+            newSize
+        )
+        val lastUser = userRepository.getUsers().last()
         assertTrue(
-            FAKE_USERS_RANDOM.filter {
-                it.equals(user)
-            }.isNotEmpty()
+            "L’utilisateur ajouté ne provient pas de la liste FAKE_USERS_RANDOM.",
+            FakeApiServiceGenerator.FAKE_USERS_RANDOM.contains(lastUser)
         )
     }
 
     @Test
     fun deleteUserWithSuccess() {
-        val userToDelete = userRepository.getUsers()[0]
+        val userToDelete = userRepository.getUsers().first()
         userRepository.deleteUser(userToDelete)
-        Assert.assertFalse(userRepository.getUsers().contains(userToDelete))
+        assertFalse(
+            "L’utilisateur n’a pas été supprimé de la liste.",
+            userRepository.getUsers().contains(userToDelete)
+        )
     }
+
+
+    /**
+ * Retourne la liste des utilisateurs.
+ */
+ fun getUsers(): List<User> {
+    return users
 }
+
+/**
+ * Ajoute un utilisateur aléatoire à la liste.
+ */
+fun addRandomUser() {
+    val randomUser = FakeApiServiceGenerator.FAKE_USERS_RANDOM.random()
+    users.add(randomUser)
+}
+
+/**
+ * Supprime un utilisateur de la liste.
+ */
+fun deleteUser(user: User) {
+    users.remove(user)
+}}
+
