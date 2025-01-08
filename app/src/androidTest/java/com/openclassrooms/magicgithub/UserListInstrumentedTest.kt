@@ -7,7 +7,9 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+//import androidx.test.rule.ActivityTestRule
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+
 import com.openclassrooms.magicgithub.di.Injection.getRepository
 import com.openclassrooms.magicgithub.ui.user_list.ListUserActivity
 import com.openclassrooms.magicgithub.utils.RecyclerViewUtils.ItemCount
@@ -27,7 +29,7 @@ import org.junit.runner.RunWith
 class UserListInstrumentedTest {
     @Rule
     @JvmField
-    val mActivityRule = ActivityTestRule(ListUserActivity::class.java)
+    val mActivityRule = ActivityScenarioRule(ListUserActivity::class.java)
 
     private var currentUsersSize = -1
 
